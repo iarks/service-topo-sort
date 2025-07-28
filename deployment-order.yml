@@ -1,127 +1,140 @@
 deploymentorder:
-    - servicename: data-store
+    - serviceName: data-store
       repository: https://github.com/org/data-infrastructure
       manifest: core/database/manifest.json
-      devlocal: core/database/dev.local.sh
-      dependson: []
+      devLocal: core/database/dev.local.sh
+      dependsOn: []
       branch: develop
-    - servicename: session-store
-      repository: https://github.com/org/session-service
-      manifest: storage/redis/manifest.json
-      devlocal: storage/redis/dev.local.sh
-      dependson:
-        - data-store
-      branch: develop
-    - servicename: queue-worker
-      repository: https://github.com/org/worker-pool
-      manifest: workers/queue-processor/manifest.json
-      devlocal: workers/queue-processor/dev.local.sh
-      dependson: []
-      branch: develop
-    - servicename: event-ingestor
-      repository: https://github.com/org/event-pipeline
-      manifest: ingestor/main/manifest.json
-      devlocal: ingestor/main/dev.local.sh
-      dependson:
-        - queue-worker
-        - data-store
-      branch: develop
-    - servicename: metrics-collector
-      repository: https://github.com/org/telemetry-system
-      manifest: collector/v2/manifest.json
-      devlocal: collector/v2/dev.local.sh
-      dependson:
-        - data-store
-      branch: develop
-    - servicename: analytics-service
-      repository: https://github.com/org/analytics-platform
-      manifest: services/analytics/manifest.json
-      devlocal: services/analytics/dev.local.sh
-      dependson:
-        - metrics-collector
-        - event-ingestor
-      branch: develop
-    - servicename: profile-service
+    - serviceName: profile-service
       repository: https://github.com/org/profile-service
       manifest: services/profile/manifest.json
-      devlocal: services/profile/dev.local.sh
-      dependson:
+      devLocal: services/profile/dev.local.sh
+      dependsOn:
         - data-store
       branch: develop
-    - servicename: push-service
+    - serviceName: metrics-collector
+      repository: https://github.com/org/telemetry-system
+      manifest: collector/v2/manifest.json
+      devLocal: collector/v2/dev.local.sh
+      dependsOn:
+        - data-store
+      branch: develop
+    - serviceName: push-service
       repository: https://github.com/org/push-gateway
       manifest: mobile/gateway/manifest.json
-      devlocal: mobile/gateway/dev.local.sh
-      dependson:
+      devLocal: mobile/gateway/dev.local.sh
+      dependsOn:
         - metrics-collector
       branch: develop
-    - servicename: notification-service
+    - serviceName: notification-service
       repository: https://github.com/org/notifications-service
       manifest: services/notify/manifest.json
-      devlocal: services/notify/dev.local.sh
-      dependson:
+      devLocal: services/notify/dev.local.sh
+      dependsOn:
         - push-service
       branch: develop
-    - servicename: email-service
+    - serviceName: email-service
       repository: https://github.com/org/communication-service
       manifest: services/email/manifest.json
-      devlocal: services/email/dev.local.sh
-      dependson:
+      devLocal: services/email/dev.local.sh
+      dependsOn:
         - notification-service
         - data-store
       branch: develop
-    - servicename: auth-service
+    - serviceName: session-store
+      repository: https://github.com/org/session-service
+      manifest: storage/redis/manifest.json
+      devLocal: storage/redis/dev.local.sh
+      dependsOn:
+        - data-store
+      branch: develop
+    - serviceName: auth-service
       repository: https://github.com/org/auth-service
       manifest: services/auth/manifest.json
-      devlocal: services/auth/dev.local.sh
-      dependson:
+      devLocal: services/auth/dev.local.sh
+      dependsOn:
         - session-store
         - email-service
       branch: develop
-    - servicename: user-service
+    - serviceName: user-service
       repository: https://github.com/org/user-management
       manifest: services/user/manifest.json
-      devlocal: services/user/dev.local.sh
-      dependson:
+      devLocal: services/user/dev.local.sh
+      dependsOn:
         - auth-service
         - profile-service
       branch: branch-name
-    - servicename: web-portal
+    - serviceName: queue-worker
+      repository: https://github.com/org/worker-pool
+      manifest: workers/queue-processor/manifest.json
+      devLocal: workers/queue-processor/dev.local.sh
+      dependsOn: []
+      branch: develop
+    - serviceName: event-ingestor
+      repository: https://github.com/org/event-pipeline
+      manifest: ingestor/main/manifest.json
+      devLocal: ingestor/main/dev.local.sh
+      dependsOn:
+        - queue-worker
+        - data-store
+      branch: develop
+    - serviceName: analytics-service
+      repository: https://github.com/org/analytics-platform
+      manifest: services/analytics/manifest.json
+      devLocal: services/analytics/dev.local.sh
+      dependsOn:
+        - metrics-collector
+        - event-ingestor
+      branch: develop
+    - serviceName: web-portal
       repository: https://github.com/org/frontend-web
       manifest: services/web/manifest.json
-      devlocal: services/web/dev.local.sh
-      dependson:
+      devLocal: services/web/dev.local.sh
+      dependsOn:
         - user-service
         - analytics-service
       branch: develop
 dependencyadjacencylist:
     analytics-service:
-        - metrics-collector
-        - event-ingestor
+        dependsOn:
+            - metrics-collector
+            - event-ingestor
     auth-service:
-        - session-store
-        - email-service
-    data-store: []
+        dependsOn:
+            - session-store
+            - email-service
+    data-store:
+        dependsOn: []
     email-service:
-        - notification-service
-        - data-store
+        dependsOn:
+            - notification-service
+            - data-store
     event-ingestor:
-        - queue-worker
-        - data-store
+        dependsOn:
+            - queue-worker
+            - data-store
     metrics-collector:
-        - data-store
+        dependsOn:
+            - data-store
     notification-service:
-        - push-service
+        dependsOn:
+            - push-service
     profile-service:
-        - data-store
+        dependsOn:
+            - data-store
     push-service:
-        - metrics-collector
-    queue-worker: []
+        dependsOn:
+            - metrics-collector
+    queue-worker:
+        dependsOn: []
     session-store:
-        - data-store
+        dependsOn:
+            - data-store
     user-service:
-        - auth-service
-        - profile-service
+        dependsOn:
+            - auth-service
+            - profile-service
     web-portal:
-        - user-service
-        - analytics-service
+        dependsOn:
+            - user-service
+            - analytics-service

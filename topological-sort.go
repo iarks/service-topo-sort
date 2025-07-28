@@ -2,7 +2,6 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -13,35 +12,39 @@ import (
 
 // Metadata for each service
 type ServiceMetadata struct {
-	Repository     string `json:"repository"`
-	PathToManifest string `json:"pathToManifest"`
-	PathToDevlocal string `json:"pathToDevlocal"`
-	Branch         string `json:"branch"`
+	Repository     string `yaml:"repository"`
+	PathToManifest string `yaml:"pathToManifest"`
+	PathToDevlocal string `yaml:"pathToDevlocal"`
+	Branch         string `yaml:"branch"`
+}
+
+type DependsOn struct {
+	DependsOn []string `yaml:"dependsOn"`
 }
 
 // Input manifest structure
 type Manifest struct {
-	DefaultBranch           string
-	DependencyAdjacencyList map[string][]string        `json:"dependencyAdjacencyList"`
-	Services                map[string]ServiceMetadata `json:"services"`
+	DefaultBranch           string                     `yaml:"defaultBranch"`
+	DependencyAdjacencyList map[string]DependsOn       `yaml:"dependencyAdjacencyList"`
+	Services                map[string]ServiceMetadata `yaml:"services"`
 }
 
 // Output structure for deployment order
 type DeployDependency struct {
-	ServiceName string   `yml:"serviceName"`
-	Repository  string   `yml:"repository"`
-	Manifest    string   `yml:"manifest"`
-	DevLocal    string   `yml:"devLocal"`
-	DependsOn   []string `yml:"dependsOn"`
-	Branch      string   `yml:"branch"`
+	ServiceName string   `yaml:"serviceName"`
+	Repository  string   `yaml:"repository"`
+	Manifest    string   `yaml:"manifest"`
+	DevLocal    string   `yaml:"devLocal"`
+	DependsOn   []string `yaml:"dependsOn"`
+	Branch      string   `yaml:"branch"`
 }
 
 type FinalDeploymentList struct {
 	DeploymentOrder         []DeployDependency
-	DependencyAdjacencyList map[string][]string // the dependency list which was used to generate the original deployment order
+	DependencyAdjacencyList map[string]DependsOn // the dependency list which was used to generate the original deployment order
 }
 
-func topoSort(graph map[string][]string) ([]string, error) {
+func topoSort(graph map[string]DependsOn) ([]string, error) {
 	type state struct {
 		node     string
 		expanded bool
@@ -88,7 +91,7 @@ func topoSort(graph map[string][]string) ([]string, error) {
 			}
 			onPath[top.node] = true
 
-			for _, dep := range graph[top.node] {
+			for _, dep := range graph[top.node].DependsOn {
 				if !visited[dep] {
 					stack = append(stack, state{dep, false})
 				}
@@ -101,15 +104,15 @@ func topoSort(graph map[string][]string) ([]string, error) {
 
 func main() {
 	// Read the manifest file
-	data, err := os.ReadFile("dependency-manifest.json")
+	data, err := os.ReadFile("dependency-manifest.yml")
 	if err != nil {
-		log.Fatalf("❌ Failed to read dependency-manifest.json: %v", err)
+		log.Fatalf("❌ Failed to read dependency-manifest.yml: %v", err)
 	}
 
 	// Parse JSON
 	var manifest Manifest
-	if err := json.Unmarshal(data, &manifest); err != nil {
-		log.Fatalf("❌ Invalid JSON in manifest: %v", err)
+	if err := yaml.Unmarshal(data, &manifest); err != nil {
+		log.Fatalf("❌ Invalid YML in manifest: %v", err)
 	}
 
 	// Build dependency graph
@@ -133,7 +136,7 @@ func main() {
 			meta = ServiceMetadata{}
 		}
 
-		dependsOn := graph[service]
+		dependsOn := graph[service].DependsOn
 
 		branch := strings.TrimSpace(meta.Branch)
 		if branch == "" {

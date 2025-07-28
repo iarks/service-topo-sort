@@ -1,0 +1,104 @@
+# the branch which is cloned by default for services in which no branch is provided
+defaultBranch: develop
+
+# the adjacency list gives a list of services which depend on each other
+dependencyAdjacencyList:
+  web-portal:
+    dependsOn:
+      - user-service
+      - analytics-service
+  user-service:
+    dependsOn:
+      - auth-service
+      - profile-service
+  auth-service:
+    dependsOn:
+      - session-store
+      - email-service
+  profile-service:
+    dependsOn:
+      - data-store
+  analytics-service:
+    dependsOn:
+      - metrics-collector
+      - event-ingestor
+  metrics-collector:
+    dependsOn:
+      - data-store
+  event-ingestor:
+    dependsOn:
+      - queue-worker
+      - data-store
+  email-service:
+    dependsOn:
+      - notification-service
+      - data-store
+  notification-service:
+    dependsOn:
+      - push-service
+  push-service:
+    dependsOn:
+      - metrics-collector
+  session-store:
+    dependsOn:
+      - data-store
+  queue-worker:
+    dependsOn: []
+  data-store:
+    dependsOn: []
+
+# each service needs to define the repository it points to, the manifest path and path to dev local script. Optionally it can include a Branch parameter. When provided, the branch is cloned instead of the default branch
+services:
+  web-portal:
+    repository: 'https://github.com/org/frontend-web'
+    pathToManifest: services/web/manifest.json
+    pathToDevlocal: services/web/dev.local.sh
+  user-service:
+    repository: 'https://github.com/org/user-management'
+    pathToManifest: services/user/manifest.json
+    pathToDevlocal: services/user/dev.local.sh
+    branch: branch-name
+  auth-service:
+    repository: 'https://github.com/org/auth-service'
+    pathToManifest: services/auth/manifest.json
+    pathToDevlocal: services/auth/dev.local.sh
+  profile-service:
+    repository: 'https://github.com/org/profile-service'
+    pathToManifest: services/profile/manifest.json
+    pathToDevlocal: services/profile/dev.local.sh
+  analytics-service:
+    repository: 'https://github.com/org/analytics-platform'
+    pathToManifest: services/analytics/manifest.json
+    pathToDevlocal: services/analytics/dev.local.sh
+  metrics-collector:
+    repository: 'https://github.com/org/telemetry-system'
+    pathToManifest: collector/v2/manifest.json
+    pathToDevlocal: collector/v2/dev.local.sh
+  event-ingestor:
+    repository: 'https://github.com/org/event-pipeline'
+    pathToManifest: ingestor/main/manifest.json
+    pathToDevlocal: ingestor/main/dev.local.sh
+  email-service:
+    repository: 'https://github.com/org/communication-service'
+    pathToManifest: services/email/manifest.json
+    pathToDevlocal: services/email/dev.local.sh
+  notification-service:
+    repository: 'https://github.com/org/notifications-service'
+    pathToManifest: services/notify/manifest.json
+    pathToDevlocal: services/notify/dev.local.sh
+  push-service:
+    repository: 'https://github.com/org/push-gateway'
+    pathToManifest: mobile/gateway/manifest.json
+    pathToDevlocal: mobile/gateway/dev.local.sh
+  session-store:
+    repository: 'https://github.com/org/session-service'
+    pathToManifest: storage/redis/manifest.json
+    pathToDevlocal: storage/redis/dev.local.sh
+  queue-worker:
+    repository: 'https://github.com/org/worker-pool'
+    pathToManifest: workers/queue-processor/manifest.json
+    pathToDevlocal: workers/queue-processor/dev.local.sh
+  data-store:
+    repository: 'https://github.com/org/data-infrastructure'
+    pathToManifest: core/database/manifest.json
+    pathToDevlocal: core/database/dev.local.sh
