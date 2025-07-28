@@ -1,0 +1,127 @@
+deploymentorder:
+    - servicename: data-store
+      repository: https://github.com/org/data-infrastructure
+      manifest: core/database/manifest.json
+      devlocal: core/database/dev.local.sh
+      dependson: []
+      branch: develop
+    - servicename: metrics-collector
+      repository: https://github.com/org/telemetry-system
+      manifest: collector/v2/manifest.json
+      devlocal: collector/v2/dev.local.sh
+      dependson:
+        - data-store
+      branch: develop
+    - servicename: push-service
+      repository: https://github.com/org/push-gateway
+      manifest: mobile/gateway/manifest.json
+      devlocal: mobile/gateway/dev.local.sh
+      dependson:
+        - metrics-collector
+      branch: develop
+    - servicename: notification-service
+      repository: https://github.com/org/notifications-service
+      manifest: services/notify/manifest.json
+      devlocal: services/notify/dev.local.sh
+      dependson:
+        - push-service
+      branch: develop
+    - servicename: session-store
+      repository: https://github.com/org/session-service
+      manifest: storage/redis/manifest.json
+      devlocal: storage/redis/dev.local.sh
+      dependson:
+        - data-store
+      branch: develop
+    - servicename: email-service
+      repository: https://github.com/org/communication-service
+      manifest: services/email/manifest.json
+      devlocal: services/email/dev.local.sh
+      dependson:
+        - notification-service
+        - data-store
+      branch: develop
+    - servicename: auth-service
+      repository: https://github.com/org/auth-service
+      manifest: services/auth/manifest.json
+      devlocal: services/auth/dev.local.sh
+      dependson:
+        - session-store
+        - email-service
+      branch: develop
+    - servicename: queue-worker
+      repository: https://github.com/org/worker-pool
+      manifest: workers/queue-processor/manifest.json
+      devlocal: workers/queue-processor/dev.local.sh
+      dependson: []
+      branch: develop
+    - servicename: event-ingestor
+      repository: https://github.com/org/event-pipeline
+      manifest: ingestor/main/manifest.json
+      devlocal: ingestor/main/dev.local.sh
+      dependson:
+        - queue-worker
+        - data-store
+      branch: develop
+    - servicename: analytics-service
+      repository: https://github.com/org/analytics-platform
+      manifest: services/analytics/manifest.json
+      devlocal: services/analytics/dev.local.sh
+      dependson:
+        - metrics-collector
+        - event-ingestor
+      branch: develop
+    - servicename: profile-service
+      repository: https://github.com/org/profile-service
+      manifest: services/profile/manifest.json
+      devlocal: services/profile/dev.local.sh
+      dependson:
+        - data-store
+      branch: develop
+    - servicename: user-service
+      repository: https://github.com/org/user-management
+      manifest: services/user/manifest.json
+      devlocal: services/user/dev.local.sh
+      dependson:
+        - auth-service
+        - profile-service
+      branch: branch-name
+    - servicename: web-portal
+      repository: https://github.com/org/frontend-web
+      manifest: services/web/manifest.json
+      devlocal: services/web/dev.local.sh
+      dependson:
+        - user-service
+        - analytics-service
+      branch: develop
+dependencyadjacencylist:
+    analytics-service:
+        - metrics-collector
+        - event-ingestor
+    auth-service:
+        - session-store
+        - email-service
+    data-store: []
+    email-service:
+        - notification-service
+        - data-store
+    event-ingestor:
+        - queue-worker
+        - data-store
+    metrics-collector:
+        - data-store
+    notification-service:
+        - push-service
+    profile-service:
+        - data-store
+    push-service:
+        - metrics-collector
+    queue-worker: []
+    session-store:
+        - data-store
+    user-service:
+        - auth-service
+        - profile-service
+    web-portal:
+        - user-service
+        - analytics-service

@@ -1,4 +1,5 @@
 {
+  "defaultBranch": "develop",
   "dependencyAdjacencyList": {
     "web-portal": ["user-service", "analytics-service"],
     "user-service": ["auth-service", "profile-service"],
@@ -23,7 +24,8 @@
     "user-service": {
       "repository": "https://github.com/org/user-management",
       "pathToManifest": "services/user/manifest.json",
-      "pathToDevlocal": "services/user/dev.local.sh"
+      "pathToDevlocal": "services/user/dev.local.sh",
+      "branch": "branch-name"
     },
     "auth-service": {
       "repository": "https://github.com/org/auth-service",
