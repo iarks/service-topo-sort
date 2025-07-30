@@ -47,7 +47,8 @@ dependencyAdjacencyList:
   data-store:
     dependsOn: []
 
-# each service needs to define the repository it points to, the manifest path and path to dev local script. Optionally it can include a Branch parameter. When provided, the branch is cloned instead of the default branch
+# each service needs to define the repository it points to, the manifest path and path to dev local script. 
+# Optionally it can include a Branch parameter. When provided, the branch is cloned instead of the default branch
 services:
   web-portal:
     repository: 'https://github.com/org/frontend-web'
