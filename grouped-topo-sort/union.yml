@@ -1,0 +1,15 @@
+analytics-service: web-portal
+auth-service: web-portal
+data-store: web-portal
+email-service: web-portal
+event-ingestor: web-portal
+metrics-collector: web-portal
+notification-service: web-portal
+profile-service: web-portal
+push-service: web-portal
+queue-worker: web-portal
+session-store: web-portal
+user-service: web-portal
+web-portal: web-portal
+x-x: analytics
+x-y: auth
